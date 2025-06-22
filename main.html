@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Law Blog: Cases That Matter</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: #f0e7da;
+      margin: 0;
+      padding: 2rem;
+      color: #3a2c23;
+    }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      color: #2d2018;
+    }
+    .container {
+      max-width: 720px;
+      margin: auto;
+    }
+    .toolbar {
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: #e9d6ba;
+      border-radius: 6px;
+      padding: 0.5rem;
+    }
+    .toolbar.active {
+      display: flex;
+    }
+    .rich-editor {
+      white-space: pre-wrap;
+      min-height: 6rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid #c69c6d;
+      border-radius: 8px;
+      background: #fff;
+      outline: none;
+    }
+    .toolbar button {
+      background: #c69c6d;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .color-picker {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #posts {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    .post {
+      background: #fff3dc;
+      padding: 1.75rem;
+      border-left: 6px solid #a67148;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+    .post .title {
+      margin: 0 0 0.75rem;
+      font-size: 2.25rem;
+      font-weight: bold;
+      color: #3a2c23;
+    }
+    .post time {
+      font-size: 0.85rem;
+      color: #6b5b4b;
+    }
+    .post .edited-time {
+      font-size: 0.8rem;
+      color: #947b62;
+      font-style: italic;
+      display: block;
+      margin-top: 0.25rem;
+    }
+    .post .content-display[contenteditable="true"] {
+      white-space: pre-wrap;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      min-height: 3rem;
+    }
+    .post .btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .post button {
+      background: #d77a61;
+      border: none;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .post button.save {
+      background: #a67148;
+    }
+    .post button:hover {
+      opacity: 0.9;
+    }
+    .post-image {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+
+    #openFormBtn {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      background: #a67148;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+
+    #formModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #formModal .form-container {
+      background: #ffeccc;
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+    }
+
+    #formModal .form-container .form {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    #formModal input, #formModal button {
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #c69c6d;
+      padding: 0.75rem 1rem;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    #formModal input:focus {
+      outline: none;
+      border-color: #a67148;
+      box-shadow: 0 0 0 4px rgba(166, 113, 72, 0.2);
+    }
+
+    #formModal button.publish {
+      background-color: #a67148;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #formModal button.publish:hover {
+      background-color: #8c5d38;
+    }
+
+    /* Close icon button image */
+    .close-img-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 2.2rem;
+      height: 2.2rem;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .close-img-btn:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>𝖫𝖺𝗐 𝖢𝖺𝗌𝖾 𝖡𝗅𝗈𝗀</h1>
+  <div class="container">
+    <div id="posts"></div>
+  </div>
+
+  <button id="openFormBtn">+ New Case</button>
+
+  <!-- Modal Form -->
+  <div id="formModal">
+    <div class="form-container">
+      <img
+        src="https://static.vecteezy.com/system/resources/thumbnails/022/062/815/small/rejected-cross-mark-icon-in-flat-style-free-png.png"
+        alt="Close"
+        class="close-img-btn"
+        onclick="closeForm()"
+      >
+      <div class="form">
+        <input type="password" id="adminPass" placeholder="Admin Password">
+        <input type="text" id="title" placeholder="Case Title">
+        <input type="text" id="imageUrl" placeholder="Image URL (optional)">
+        <div class="editor-wrapper">
+          <div class="toolbar" id="toolbar">
+            <button onclick="formatText('bold')">B</button>
+            <button onclick="formatText('italic')">I</button>
+            <button onclick="formatText('underline')">U</button>
+            <button onclick="formatText('insertUnorderedList')">• List</button>
+            <button onclick="formatText('insertOrderedList')">1. List</button>
+            <div class="color-picker">
+              <label for="color">🎨</label>
+              <input type="color" id="color" onchange="formatColor(this.value)">
+            </div>
+          </div>
+          <div id="content" class="rich-editor" contenteditable="true"></div>
+        </div>
+        <button class="publish" onclick="addPost()">Publish Case</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PASSWORD = "monty";
+    const toolbar = document.getElementById('toolbar');
+    const colorPicker = document.getElementById('color');
+    const contentBox = document.getElementById('content');
+    const formModal = document.getElementById('formModal');
+    const openFormBtn = document.getElementById('openFormBtn');
+    let clickedInsideToolbar = false;
+
+    openFormBtn.addEventListener('click', () => {
+      formModal.style.display = 'flex';
+    });
+
+    function closeForm() {
+      formModal.style.display = 'none';
+    }
+
+    toolbar.addEventListener('mousedown', () => {
+      clickedInsideToolbar = true;
+    });
+
+    function formatText(command) {
+      document.execCommand(command, false, null);
+    }
+
+    function formatColor(color) {
+      document.execCommand('foreColor', false, color);
+      colorPicker.value = color;
+    }
+
+    contentBox.addEventListener('focus', () => {
+      toolbar.classList.add('active');
+    });
+
+    contentBox.addEventListener('blur', () => {
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (!clickedInsideToolbar && !toolbar.contains(active)) {
+          toolbar.classList.remove('active');
+        }
+        clickedInsideToolbar = false;
+      }, 100);
+    });
+
+    function renderPost(title, content, date = new Date().toLocaleString(), edited = null, isNew = false, imageUrl = "") {
+      const post = document.createElement('div');
+      post.className = 'post';
+      post.dataset.date = date;
+      if (edited) post.dataset.edited = edited;
+
+      post.innerHTML = `
+        <div class="title" contenteditable="true">${title}</div>
+        ${imageUrl ? `<img src="${imageUrl}" alt="Post image" class="post-image">` : ''}
+        <time>${date}</time>
+        ${edited ? `<span class="edited-time">(edited at ${edited})</span>` : ''}
+        <div class="content-display" contenteditable="true">${content}</div>
+        <div class="btn">
+          <button class="save" onclick="savePost(this)">Save</button>
+          <button onclick="deletePost(this)">Delete</button>
+        </div>
+      `;
+
+      const contentBox = post.querySelector('.content-display');
+      contentBox.addEventListener('focus', () => {
+        const existing = post.querySelector('.toolbar');
+        if (existing) existing.remove();
+        const toolbarClone = toolbar.cloneNode(true);
+        toolbarClone.classList.add('active');
+        toolbarClone.querySelector('#color').addEventListener('change', function () {
+          document.execCommand('foreColor', false, this.value);
+        });
+        toolbarClone.addEventListener('mousedown', () => {
+          clickedInsideToolbar = true;
+        });
+        contentBox.before(toolbarClone);
+      });
+
+      contentBox.addEventListener('blur', () => {
+        setTimeout(() => {
+          const active = document.activeElement;
+          const localToolbar = post.querySelector('.toolbar');
+          if (localToolbar && !clickedInsideToolbar && !localToolbar.contains(active)) {
+            localToolbar.remove();
+          }
+          clickedInsideToolbar = false;
+        }, 100);
+      });
+
+      const postsContainer = document.getElementById('posts');
+      if (isNew) {
+        postsContainer.prepend(post);
+      } else {
+        postsContainer.appendChild(post);
+      }
+    }
+
+    function addPost() {
+      const password = document.getElementById('adminPass').value.trim();
+      const title = document.getElementById('title').value.trim();
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const content = document.getElementById('content').innerHTML.trim();
+      if (password !== PASSWORD) {
+        alert("Incorrect password.");
+        return;
+      }
+      if (!title || !content) {
+        alert("Please enter both a title and content.");
+        return;
+      }
+      renderPost(title, content, new Date().toLocaleString(), null, true, imageUrl);
+      savePosts();
+      document.getElementById('title').value = '';
+      document.getElementById('imageUrl').value = '';
+      document.getElementById('content').innerHTML = '';
+      closeForm();
+    }
+
+    function savePosts() {
+      const posts = Array.from(document.querySelectorAll('.post')).map(post => ({
+        title: post.querySelector('.title').innerText,
+        date: post.dataset.date,
+        edited: post.dataset.edited || null,
+        content: post.querySelector('.content-display').innerHTML,
+        image: post.querySelector('img')?.src || ""
+      }));
+      localStorage.setItem('lawPosts', JSON.stringify(posts));
+    }
+
+    function loadPosts() {
+      const saved = localStorage.getItem('lawPosts');
+      if (saved) {
+        JSON.parse(saved).forEach(post =>
+          renderPost(post.title, post.content, post.date, post.edited, false, post.image)
+        );
+      }
+    }
+
+    function savePost(btn) {
+      const password = prompt("Enter password to save changes:");
+      if (password !== PASSWORD) {
+        alert("Incorrect password. Cannot save.");
+        return;
+      }
+      const post = btn.closest('.post');
+      const editedTime = new Date().toLocaleString();
+      post.dataset.edited = editedTime;
+
+      const editedSpan = post.querySelector('.edited-time');
+      if (editedSpan) {
+        editedSpan.textContent = `(edited at ${editedTime})`;
+      } else {
+        const timeNode = post.querySelector('time');
+        const newSpan = document.createElement('span');
+        newSpan.className = 'edited-time';
+        newSpan.textContent = `(edited at ${editedTime})`;
+        timeNode.insertAdjacentElement('afterend', newSpan);
+      }
+
+      savePosts();
+    }
+
+    function deletePost(btn) {
+      const password = prompt("Enter password to delete post:");
+      if (password !== PASSWORD) {
+        alert("Incorrect password. Cannot delete.");
+        return;
+      }
+      btn.closest('.post').remove();
+      savePosts();
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
